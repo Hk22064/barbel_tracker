@@ -1,0 +1,39 @@
+--- Pythonの基本 ---
+
+pycache/
+*.py[cod]
+
+--- 仮想環境 (Condaなど) ---
+
+.env
+.venv
+env/
+venv/
+.conda/
+
+--- VS Code 設定 ---
+
+.vscode/
+
+--- YOLO / AI学習結果 (超重要: これらは重いので無視) ---
+
+runs/
+*.pt
+*.onnx
+*.tflite
+
+--- データセット・素材 (重いので無視) ---
+
+Master_dataset/
+external_dataset/
+dataset_split/
+images/
+labels/
+video/ 
+*.mp4 
+*.avi 
+*.mov
+
+--- 出力結果 ---
+
+output/

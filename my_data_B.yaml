@@ -1,0 +1,6 @@
+path: .
+train: ./dataset/train/images
+val: ./dataset/valid/images
+
+names:
+  0: weight_clump

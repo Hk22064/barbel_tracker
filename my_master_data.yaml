@@ -1,0 +1,6 @@
+path: ./Master_Dataset
+train: train/images
+val: valid/images
+
+names:
+  0: weight_clump
