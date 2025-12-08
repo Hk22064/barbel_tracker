@@ -30,6 +30,7 @@ dataset_split/
 images/
 labels/
 video/ 
+models/
 *.mp4 
 *.avi 
 *.mov
@@ -37,3 +38,4 @@ video/
 --- 出力結果 ---
 
 output/
+gemini.md
