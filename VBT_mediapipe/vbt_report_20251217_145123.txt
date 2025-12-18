@@ -1,0 +1,30 @@
+VBT Analysis Report
+Date: 2025-12-17 14:51:23
+Total Reps: 26
+--------------------------------
+Rep 1: Peak: 4.33 m/s, Drop-off: 21.1%
+Rep 2: Peak: 0.41 m/s, Drop-off: 92.6%
+Rep 3: Peak: 3.01 m/s, Drop-off: 45.2%
+Rep 4: Peak: 1.80 m/s, Drop-off: 67.3%
+Rep 5: Peak: 1.76 m/s, Drop-off: 67.9%
+Rep 6: Peak: 0.81 m/s, Drop-off: 85.2%
+Rep 7: Peak: 2.01 m/s, Drop-off: 63.4%
+Rep 8: Peak: 0.18 m/s, Drop-off: 96.7%
+Rep 9: Peak: 3.34 m/s, Drop-off: 39.2%
+Rep 10: Peak: 2.86 m/s, Drop-off: 47.9%
+Rep 11: Peak: 1.90 m/s, Drop-off: 65.4%
+Rep 12: Peak: 5.05 m/s, Drop-off: 8.0%
+Rep 13: Peak: 0.97 m/s, Drop-off: 82.4%
+Rep 14: Peak: 1.81 m/s, Drop-off: 67.1%
+Rep 15: Peak: 1.85 m/s, Drop-off: 66.2%
+Rep 16: Peak: 5.49 m/s, Drop-off: 0.0%
+Rep 17: Peak: 1.92 m/s, Drop-off: 65.1%
+Rep 18: Peak: 3.11 m/s, Drop-off: 43.4%
+Rep 19: Peak: 0.06 m/s, Drop-off: 98.9%
+Rep 20: Peak: 2.58 m/s, Drop-off: 53.1%
+Rep 21: Peak: 1.34 m/s, Drop-off: 75.7%
+Rep 22: Peak: 1.51 m/s, Drop-off: 72.5%
+Rep 23: Peak: 2.12 m/s, Drop-off: 61.4%
+Rep 24: Peak: 0.50 m/s, Drop-off: 90.9%
+Rep 25: Peak: 2.47 m/s, Drop-off: 55.0%
+Rep 26: Peak: 1.08 m/s, Drop-off: 80.4%

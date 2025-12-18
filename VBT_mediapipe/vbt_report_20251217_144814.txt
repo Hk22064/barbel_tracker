@@ -1,0 +1,10 @@
+VBT Analysis Report
+Date: 2025-12-17 14:48:14
+Total Reps: 6
+--------------------------------
+Rep 1: Peak: 0.25 m/s, Drop-off: 45.0%
+Rep 2: Peak: 0.35 m/s, Drop-off: 23.3%
+Rep 3: Peak: 0.46 m/s, Drop-off: 0.0%
+Rep 4: Peak: 0.40 m/s, Drop-off: 13.9%
+Rep 5: Peak: 0.43 m/s, Drop-off: 6.1%
+Rep 6: Peak: 0.38 m/s, Drop-off: 18.1%

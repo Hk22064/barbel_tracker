@@ -23,7 +23,7 @@ runs/
 *.tflite
 
 --- データセット・素材 (重いので無視) ---
-
+test_dataset/
 Master_dataset/
 external_dataset/
 dataset_split/

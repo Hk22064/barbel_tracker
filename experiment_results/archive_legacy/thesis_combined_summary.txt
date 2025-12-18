@@ -1,0 +1,20 @@
+| Video                      | Label                   | Method                |   Reps |   FPS |
+|:---------------------------|:------------------------|:----------------------|-------:|------:|
+| front_9rep.mp4             | Front View (Horizontal) | Proposed (MP+YOLO11n) |      9 |  41.5 |
+| front_9rep.mp4             | Front View (Horizontal) | Comp A (YOLO11x-Pose) |      8 |  45.4 |
+| front_9rep.mp4             | Front View (Horizontal) | Comp B (ObjectDet)    |      0 |  73.6 |
+| right_9rep.mp4             | Right View (Horizontal) | Proposed (MP+YOLO11n) |     10 |  41.6 |
+| right_9rep.mp4             | Right View (Horizontal) | Comp A (YOLO11x-Pose) |     10 |  49   |
+| right_9rep.mp4             | Right View (Horizontal) | Comp B (ObjectDet)    |      0 |  75.5 |
+| no20kgplate_left_10rep.mp4 | Left View               | Proposed (MP+YOLO11n) |      8 |  40.1 |
+| no20kgplate_left_10rep.mp4 | Left View               | Comp A (YOLO11x-Pose) |     13 |  49.8 |
+| no20kgplate_left_10rep.mp4 | Left View               | Comp B (ObjectDet)    |      0 |  70.8 |
+| front_10rep.mp4            | Front View (Vertical)   | Proposed (MP+YOLO11n) |     10 |  43.1 |
+| front_10rep.mp4            | Front View (Vertical)   | Comp A (YOLO11x-Pose) |      3 |  47.6 |
+| front_10rep.mp4            | Front View (Vertical)   | Comp B (ObjectDet)    |      0 |  78.7 |
+| front_5rep_accurately.mp4  | Front View (Vertical)   | Proposed (MP+YOLO11n) |      5 |  44.8 |
+| front_5rep_accurately.mp4  | Front View (Vertical)   | Comp A (YOLO11x-Pose) |      5 |  43.3 |
+| front_5rep_accurately.mp4  | Front View (Vertical)   | Comp B (ObjectDet)    |      0 |  66.6 |
+| right_5rep.mp4             | Right View (Vertical)   | Proposed (MP+YOLO11n) |      2 |  43.1 |
+| right_5rep.mp4             | Right View (Vertical)   | Comp A (YOLO11x-Pose) |      0 |  45.9 |
+| right_5rep.mp4             | Right View (Vertical)   | Comp B (ObjectDet)    |      0 |  71.4 |
