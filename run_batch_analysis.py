@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 # Import VBT modules
-from VBT_mediapipe.yolo11_hybrid_estimator import Yolo11HybridEstimator
+from VBT_mediapipe.yolo11_mediapipe_estimator import Yolo11MediaPipeEstimator
 from VBT_mediapipe.vbt_analyzer import VBTAnalyzer
 from VBT_mediapipe.comp_object_estimator import CompObjectEstimator
 
@@ -23,9 +23,9 @@ def process_single_video(video_path, output_folder):
     filename = os.path.basename(video_path)
     print(f"Processing: {filename}...")
     
-    # --- A. Proposed Method (Hybrid) ---
-    print(f"  Running Proposed Method (Hybrid)...")
-    estimator = Yolo11HybridEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
+    # --- A. Proposed Method (MediaPipe) ---
+    print(f"  Running Proposed Method (MediaPipe)...")
+    estimator = Yolo11MediaPipeEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
     analyzer = VBTAnalyzer(smoothing_window=5)
     
     cap = cv2.VideoCapture(video_path)

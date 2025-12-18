@@ -10,10 +10,10 @@ from ultralytics import YOLO
 # Assuming the file structure:
 # root/
 #   VBT_mediapipe/
-#       yolo11_hybrid_estimator.py
+#       yolo11_mediapipe_estimator.py
 #       vbt_analyzer.py
 #       ...
-from VBT_mediapipe.yolo11_hybrid_estimator import Yolo11HybridEstimator
+from VBT_mediapipe.yolo11_mediapipe_estimator import Yolo11MediaPipeEstimator
 from VBT_mediapipe.yolo_pose_hybrid_estimator import YoloPoseHybridEstimator
 
 # Configuration
@@ -128,7 +128,7 @@ def main():
         # Re-initialize models for each video to ensure fresh MediaPipe state
         print("Initializing Models for new video...")
         # Use lower confidence (0.3) to help with "Far" / "Vertical" videos where resolution is low
-        mdl_proposed = Yolo11HybridEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
+        mdl_proposed = Yolo11MediaPipeEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
         mdl_comp_a = YoloPoseHybridEstimator(pose_model_path="yolo11x-pose.pt")
         
         mdl_comp_b_path = "Model_B_Clump_n/train/weights/best.pt"

@@ -32,8 +32,8 @@ import os
 # Assumes running from 'barbel_tracker' root usually, but VBT_mediapipe package structure applies
 sys.path.append(os.getcwd())
 
-# Import Hybrid Estimator
-from VBT_mediapipe.yolo_hybrid_estimator import YoloHybridEstimator
+# Import MediaPipe Estimator
+from VBT_mediapipe.yolo11_mediapipe_estimator import Yolo11MediaPipeEstimator
 from VBT_mediapipe.vbt_analyzer import VBTAnalyzer
 
 def draw_text(img, text, pos, color=(0, 255, 0), font_scale=0.7, thickness=2):
@@ -57,14 +57,14 @@ def get_color_by_fatigue(drop_off_percent):
     else: return (0, 0, 255)
 
 def main():
-    parser = argparse.ArgumentParser(description="VBT Hybrid Analyzer")
+    parser = argparse.ArgumentParser(description="VBT MediaPipe Analyzer")
     parser.add_argument("--video", type=str, help="Path to video file", default=None)
-    parser.add_argument("--model", type=str, default="models/yolo11s.pt", help="YOLO model path")
+    parser.add_argument("--model", type=str, default="yolo11n.pt", help="YOLO model path")
     args = parser.parse_args()
 
-    # Initialize Hybrid Estimator
-    print("Initializing YoloHybridEstimator...")
-    pose_estimator = YoloHybridEstimator(yolo_model=args.model)
+    # Initialize MediaPipe Estimator
+    print("Initializing Yolo11MediaPipeEstimator...")
+    pose_estimator = Yolo11MediaPipeEstimator(model_path=args.model)
     vbt_analyzer = VBTAnalyzer(smoothing_window=5)
 
     if args.video:

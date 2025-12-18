@@ -3,7 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 import mediapipe as mp
 
-class Yolo11HybridEstimator:
+class Yolo11MediaPipeEstimator:
     def __init__(self, model_path="yolo11n.pt", min_detection_confidence=0.5, min_tracking_confidence=0.5):
         """
         Initializes the Yolo11HybridEstimator.

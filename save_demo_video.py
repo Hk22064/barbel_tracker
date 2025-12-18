@@ -2,7 +2,7 @@ import cv2
 import time
 import numpy as np
 import os
-from VBT_mediapipe.yolo11_hybrid_estimator import Yolo11HybridEstimator
+from VBT_mediapipe.yolo11_mediapipe_estimator import Yolo11MediaPipeEstimator
 from VBT_mediapipe.vbt_analyzer import VBTAnalyzer
 
 # Script Configuration
@@ -77,7 +77,7 @@ def main():
     # Initialize Models
     # Recalling that front_10rep needs lower confidence for "Far" view
     print("Initializing Hybrid Estimator...")
-    pose_estimator = Yolo11HybridEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
+    pose_estimator = Yolo11MediaPipeEstimator(model_path="yolo11n.pt", min_detection_confidence=0.3, min_tracking_confidence=0.3)
     vbt_analyzer = VBTAnalyzer(smoothing_window=5)
     
     frame_count = 0
