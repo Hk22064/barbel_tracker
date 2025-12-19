@@ -68,9 +68,10 @@ class Yolo11MediaPipeEstimator:
                 box_w = x2 - x1
                 box_h = y2 - y1
                 
-                # 20% margin
-                margin_x = int(box_w * 0.2)
-                margin_y = int(box_h * 0.2)
+                # 40% margin to capture full motion (arms extending)
+                # Especially important for side views (Right/Left) where arms move out of torso box.
+                margin_x = int(box_w * 0.4)
+                margin_y = int(box_h * 0.4)
                 
                 crop_x1 = max(0, x1 - margin_x)
                 crop_y1 = max(0, y1 - margin_y)

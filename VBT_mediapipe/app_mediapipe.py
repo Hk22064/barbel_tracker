@@ -28,9 +28,8 @@ import numpy as np
 import sys
 import os
 
-# Add current dir to path to sure imports work
-# Assumes running from 'barbel_tracker' root usually, but VBT_mediapipe package structure applies
-sys.path.append(os.getcwd())
+# Add project root to sys.path to allow imports from VBT_mediapipe package
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import MediaPipe Estimator
 from VBT_mediapipe.yolo11_mediapipe_estimator import Yolo11MediaPipeEstimator
