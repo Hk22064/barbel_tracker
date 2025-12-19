@@ -114,10 +114,19 @@ def process_video_proposed(video_path, output_folder):
     elapsed = time.time() - start_time
     proc_fps = frame_count / elapsed if elapsed > 0 else 0
     
+    # Calculate Jitter Score (Mean Absolute Velocity Change)
+    # Lower is smoother.
+    # We ignore the first few frames where velocity might be unstable.
+    if len(velocities) > 10:
+        raw_diffs = np.abs(np.diff(velocities[5:])) # Skip first 5
+        jitter_score = np.mean(raw_diffs)
+    else:
+        jitter_score = 0.0
+
     # Graph
     plt.figure(figsize=(10, 5))
     plt.plot(times, velocities, label=f'Proposed (MediaPipe) - {analyzer.rep_count} Reps', color='#007acc')
-    plt.title(f"提案手法テスト: {filename}", fontsize=14)
+    plt.title(f"提案手法テスト: {filename} (Jitter: {jitter_score:.4f})", fontsize=14)
     plt.xlabel("Time (s)")
     plt.ylabel("Velocity (m/s)")
     plt.legend()
@@ -130,6 +139,7 @@ def process_video_proposed(video_path, output_folder):
         "Video": filename,
         "Reps": analyzer.rep_count,
         "FPS": round(proc_fps, 1),
+        "Jitter": round(jitter_score, 4),
         "Graph": graph_path
     }
 
