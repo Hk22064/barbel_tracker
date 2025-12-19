@@ -116,6 +116,13 @@ def main():
         # Since 'results' contains normalized coords 0.0-1.0, 
         # draw_landmarks will draw on 'display_frame' correctly regardless of resolution
         pose_estimator.draw_landmarks(display_frame, results)
+        
+        # Draw Locked Crop Box
+        if 'bbox' in landmarks_dict:
+            # Fix: Scale bbox to match display_frame resolution
+            bbox = landmarks_dict['bbox']
+            scaled_bbox = [int(coord * scale_disp) for coord in bbox]
+            pose_estimator.draw_bbox(display_frame, scaled_bbox)
 
         # ----------------------------------------------------
         # 2. VBT Logic (Same as standard app)
@@ -129,15 +136,18 @@ def main():
             bar_y = (lw[1] + rw[1]) / 2.0
             
             if vbt_analyzer.calibration_factor is None:
-                if args.video:
-                    vbt_analyzer.calibrate(lw, rw)
-                    velocity = 0.0
-                else:
-                    raw_vel = 0.0
-                    if vbt_analyzer.prev_y is not None:
-                         raw_vel = abs(vbt_analyzer.prev_y - bar_y)
-                    vbt_analyzer.attempt_auto_calibration(lw, rw, raw_vel)
-                    vbt_analyzer.calculate_velocity(bar_y, current_time)
+                # Use Robust Calibration (Handles Side Views & Partial Visibility)
+                # Pass 'results' (pose_results) and mp_pose enum
+                vbt_analyzer.attempt_robust_calibration(landmarks_dict, results, pose_estimator.mp_pose)
+                
+                # If still None (e.g. waiting for valid frame), execute legacy or wait
+                # Actually robust calib sets a default if needed, so it shouldn't hang forever unless no landmarks found.
+                if vbt_analyzer.calibration_factor is None:
+                     # If webcam, we might want 'attempt_auto_calibration' (stand still logic)?
+                     # But 'robust' is better for "Setup-Free".
+                     # Let's fallback to current webcam logic ONLY if robust didn't fire?
+                     # No, robust is better.
+                     pass
             else:
                 velocity = vbt_analyzer.calculate_velocity(bar_y, current_time)
                 vbt_analyzer.process_rep(velocity)

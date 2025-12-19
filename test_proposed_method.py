@@ -30,22 +30,8 @@ def process_video_proposed(video_path, output_folder):
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     
-    # Rotation Logic (Re-enabled for Accuracy)
-    # Without rotation, Pose Estimation fails on sideways videos like front_10rep.
-    # Namun! 'front_5rep' works better WITHOUT rotation (based on app_yolo11 test).
+    # Rotation Logic Removed as requested
     ROTATE = False
-    cap_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    cap_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    
-    is_vertical = cap_w > cap_h
-    is_10rep = "10rep" in filename
-    is_vertical_file = "vertical" in video_path.lower()
-    
-    # Only rotate front_10rep (which is sideways and needs it)
-    # Exclude front_5rep if it works better without.
-    if is_vertical and (is_10rep or (is_vertical_file and "5rep" not in filename)):
-         ROTATE = True
-         print("  -> Applying 90deg Rotation")
 
     start_time = time.time()
     frame_count = 0
@@ -58,14 +44,15 @@ def process_video_proposed(video_path, output_folder):
         if not ret:
             break
             
-        if ROTATE:
-            frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+        # Rotation removed
+        # if ROTATE:
+        #    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
             
         frame_count += 1
         curr_time = frame_count / fps
         
         # Process
-        landmarks, _ = estimator.process_frame(frame)
+        landmarks, pose_results = estimator.process_frame(frame)
         
         # VBT Logic
         vel = 0.0
@@ -74,36 +61,14 @@ def process_video_proposed(video_path, output_folder):
             rw = landmarks['right_wrist']
             bar_y = (lw[1] + rw[1]) / 2.0
             
+            # Use Robust Calibration Logic (Moved to VBTAnalyzer)
             if analyzer.calibration_factor is None:
-                # Robust Calibration Logic
-                # 1. Try Wrist Distance (Standard)
-                # 2. If Wrists overlap (Side View), fallback to Torso Length
-                
-                lw_x, lw_y = lw
-                rw_x, rw_y = rw
-                wrist_dist = np.sqrt((lw_x - rw_x)**2 + (lw_y - rw_y)**2)
-                
-                # Threshold: If wrist distance is too small (< 100px), assume Side View
-                if wrist_dist > 100:
-                    analyzer.calibrate(lw, rw)
-                else:
-                    # Fallback: Torso Calibration
-                    # Assume Torso Length (Shoulder to Hip) is approx 50cm (0.5m)
-                    if 'left_shoulder' in landmarks and 'left_hip' in landmarks:
-                        ls = landmarks['left_shoulder']
-                        lh = landmarks['left_hip']
-                        torso_dist = np.sqrt((ls[0] - lh[0])**2 + (ls[1] - lh[1])**2)
-                        
-                        if torso_dist > 0:
-                            analyzer.calibration_factor = 0.50 / torso_dist
-                            print(f"[Calibration] Side View Detected (WristDist: {wrist_dist:.1f}px). Using Torso (Factor: {analyzer.calibration_factor:.4f} m/px)")
-                        else:
-                            # Last resort: Fixed conservative factor
-                             analyzer.calibration_factor = 0.0015
-                    else:
-                         analyzer.calibration_factor = 0.0015
+                analyzer.attempt_robust_calibration(landmarks, pose_results, estimator.mp_pose)
+            
+            if analyzer.calibration_factor is not None:
                 vel = analyzer.calculate_velocity(bar_y, curr_time)
                 analyzer.process_rep(vel)
+                
         
         velocities.append(vel)
         times.append(curr_time)
