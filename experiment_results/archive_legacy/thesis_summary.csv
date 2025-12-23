@@ -1,4 +1,0 @@
-Method,Reps,FPS
-Proposed (MP+YOLO11n),9,43.72344069171294
-Comp A (YOLO11x-Pose),8,42.643930107327165
-ObjectDetect (Custom),0,73.803737722386

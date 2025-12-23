@@ -16,12 +16,13 @@ venv/
 .vscode/
 
 --- YOLO / AI学習結果 (超重要: これらは重いので無視) ---
-
+.agent/
 runs/
 *.pt
 *.onnx
 *.tflite
-
+archive/
+thesis/
 --- データセット・素材 (重いので無視) ---
 test_dataset/
 Master_dataset/

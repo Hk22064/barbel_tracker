@@ -1,7 +1,0 @@
-Video,Reps,FPS,Graph
-front_9rep.mp4,9,36.4,experiment_results/proposed_only\run_20251219_114416\test_front_9rep.png
-right_9rep.mp4,7,36.7,experiment_results/proposed_only\run_20251219_114416\test_right_9rep.png
-noplate_left_10rep.mp4,1,34.8,experiment_results/proposed_only\run_20251219_114416\test_noplate_left_10rep.png
-front_10rep.mp4,10,36.9,experiment_results/proposed_only\run_20251219_114416\test_front_10rep.png
-front_5rep.mp4,0,37.3,experiment_results/proposed_only\run_20251219_114416\test_front_5rep.png
-right_5rep.mp4,8,35.8,experiment_results/proposed_only\run_20251219_114416\test_right_5rep.png
