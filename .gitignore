@@ -22,7 +22,7 @@ runs/
 *.onnx
 *.tflite
 archive/
-thesis/
+
 --- データセット・素材 (重いので無視) ---
 test_dataset/
 Master_dataset/
