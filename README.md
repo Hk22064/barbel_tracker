@@ -143,14 +143,19 @@ graph LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> "待機 WAITING"
-    "待機 WAITING" --> "下降 ECCENTRIC": 速度 < -閾値
-    "下降 ECCENTRIC" --> "上昇 CONCENTRIC": 速度 > +閾値
-    state "上昇 CONCENTRIC" {
+    state "待機 WAITING" as WAITING
+    state "下降 ECCENTRIC" as ECCENTRIC
+    state "上昇 CONCENTRIC" as CONCENTRIC
+
+    [*] --> WAITING
+    WAITING --> ECCENTRIC: 速度 < -閾値
+    ECCENTRIC --> CONCENTRIC: 速度 > +閾値
+    
+    state CONCENTRIC {
         データ記録 --> ピーク速度判定
         ピーク速度判定 --> 変位量チェック
     }
-    "上昇 CONCENTRIC" --> "待機 WAITING": 速度 < 終了閾値
+    CONCENTRIC --> WAITING: 速度 < 終了閾値
 ```
 
 ### 制約事項・注意点
