@@ -43,7 +43,7 @@ The system employs a **Hybrid Tracking Architecture** ensuring both robustness a
 
 #### 1. Image Processing Pipeline
 ```mermaid
-graph LR
+graph TD
     Input["Video Input"] --> YOLO["YOLOv11 Detection"]
     YOLO -->|"BBox + Margin"| Crop["Dynamic Cropping"]
     Crop --> MP["MediaPipe Pose"]
@@ -118,7 +118,7 @@ stateDiagram-v2
 
 #### 1. 画像処理パイプライン
 ```mermaid
-graph LR
+graph TD
     Input["映像入力"] --> YOLO["YOLOv11 物体検出"]
     YOLO -->|"BBox + マージン"| Crop["動的クロッピング"]
     Crop --> MP["MediaPipe 姿勢推定"]
