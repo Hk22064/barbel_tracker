@@ -19,7 +19,7 @@
 *   **Real-time Feedback**: Displays Rep Count, Concentric Velocity, and Fatigue Indicators (Green/Yellow/Red) in real-time.
 *   **Scientific Accuracy**: Evaluated against manual frame counting, achieving **MAPE < 10.4%** and **r=0.86** correlation.
 
-![System GUI](thesis/figures/figures/system_gui_view.png)
+![System GUI](assets/images/system_gui_view.png)
 
 ### Experimental Results
 We verified the accuracy of velocity estimation by comparing it with manual analysis (frame counting) in squat exercises.
@@ -31,7 +31,7 @@ We verified the accuracy of velocity estimation by comparing it with manual anal
 | **Corr (r)** | **0.86** | Correlation Coefficient |
 
 **Velocity Comparison (Repetition vs Velocity)**
-![Velocity Plot](thesis/figures/plot_front_5rep_velocity.png)
+![Velocity Plot](assets/images/plot_front_5rep_velocity.png)
 *Red: Proposed System, Blue: Manual Ground Truth*
 
 ### Installation & Usage
@@ -98,7 +98,7 @@ stateDiagram-v2
 *   **リアルタイムフィードバック**: レップ数、挙上速度（m/s）、疲労度（速度低下率）をリアルタイムに可視化します。
 *   **高精度**: 手動計測との誤差 10.4% 未満を達成し、市販デバイスに近い精度を実証しました。
 
-![System GUI](thesis/figures/figures/system_gui_view.png)
+![System GUI](assets/images/system_gui_view.png)
 
 ### 実験結果 (Experimental Results)
 スクワット動作において、手動分析（フレームカウント法）との比較検証を行いました。
@@ -110,7 +110,7 @@ stateDiagram-v2
 | **相関係数 (r)** | **0.86** | 手動計測との相関の強さ |
 
 **速度推移の比較プロット**
-![Velocity Plot](thesis/figures/plot_front_5rep_velocity.png)
+![Velocity Plot](assets/images/plot_front_5rep_velocity.png)
 *(赤: 本システム, 青: 手動計測)*
 
 ### 技術的なアーキテクチャ
