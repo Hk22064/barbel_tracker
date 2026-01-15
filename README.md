@@ -38,6 +38,46 @@ We verified the accuracy of velocity estimation by comparing it with manual anal
 1.  **Install**: `pip install -r requirements.txt`
 2.  **Run**: `python tools/launcher_gui.py`
 
+### Technical Architecture
+The system employs a **Hybrid Tracking Architecture** ensuring both robustness and precision.
+
+#### 1. Image Processing Pipeline
+```mermaid
+graph LR
+    Input[Video Input] --> YOLO[YOLOv11 Detection]
+    YOLO -->|BBox + Margin| Crop[Dynamic Cropping]
+    Crop --> MP[MediaPipe Pose]
+    MP -->|Local Landmarks| Transform[Coord Transformation]
+    Transform -->|Global Landmarks| Analyzer[VBT Analyzer]
+```
+*   **YOLOv11** detects the athlete's bounding box, handling complex backgrounds.
+*   **Dynamic Cropping** extracts the region of interest (ROI) with a safety margin, maximizing image resolution for the pose estimator.
+*   **MediaPipe Pose** runs on the cropped image to extract high-precision skeletal coordinate (33 keypoints).
+
+#### 2. Velocity Calculation Logic
+Velocity is calculated using the vertical displacement of the barbell (Wrist Keypoints) relative to time.
+
+*   **Grip Calibration ($Scale$)**:
+    $$ Scale (m/px) = \frac{Real Grip Width (0.81m)}{Pixel Distance} $$
+*   **Instantaneous Velocity ($v_t$)**:
+    $$ v_t = \frac{(y_{t-1} - y_t) \times Scale}{\Delta t} $$
+    *(Smoothed using a Moving Average Filter to suppress jitter)*
+
+#### 3. Repetition State Machine
+Automatic repetition counting is managed by a state machine to prevent false positives.
+
+```mermaid
+stateDiagram-v2
+    [*] --> WAITING
+    WAITING --> ECCENTRIC: Vel < -Threshold
+    ECCENTRIC --> CONCENTRIC: Vel > +Threshold
+    state CONCENTRIC {
+        Recording --> PeakCheck
+        PeakCheck --> Displacement
+    }
+    CONCENTRIC --> WAITING: Vel < ExitThreshold
+```
+
 ### Constraints & Limitations
 *   **Camera Angle**: **Front View Only**. Side views are not supported as the grip width cannot be measured.
 *   **Equipment**: Assumes a standard Olympic barbell with 81cm ring marks.
@@ -72,6 +112,46 @@ We verified the accuracy of velocity estimation by comparing it with manual anal
 **速度推移の比較プロット**
 ![Velocity Plot](thesis/figures/plot_front_5rep_velocity.png)
 *(赤: 本システム, 青: 手動計測)*
+
+### 技術的なアーキテクチャ
+本システムは、堅牢性と精度を両立させる **ハイブリッド追跡アーキテクチャ** を採用しています。
+
+#### 1. 画像処理パイプライン
+```mermaid
+graph LR
+    Input[映像入力] --> YOLO[YOLOv11 物体検出]
+    YOLO -->|BBox + マージン| Crop[動的クロッピング]
+    Crop --> MP[MediaPipe 姿勢推定]
+    MP -->|ローカル座標| Transform[座標変換 (Global化)]
+    Transform -->|グローバル座標| Analyzer[VBT分析ロジック]
+```
+*   **YOLOv11**: 複雑な背景からリフターの領域（Bounding Box）を堅牢に検出します。
+*   **動的クロッピング**: 検出領域にマージンを持たせて切り出し、姿勢推定器への入力解像度を最大化します。
+*   **MediaPipe Pose**: 切り出された高解像度画像に対して、高精度な骨格推定（33キーポイント）を実行します。
+
+#### 2. 速度算出ロジック
+バーベル（手首）の垂直変位に基づき、物理的な挙上速度を算出します。
+
+*   **グリップ幅キャリブレーション ($Scale$)**:
+    $$ Scale (m/px) = \frac{\text{実グリップ幅} (0.81m)}{\text{画素上の手幅距離}} $$
+*   **瞬時速度 ($v_t$)**:
+    $$ v_t = \frac{(y_{t-1} - y_t) \times Scale}{\Delta t} $$
+    *(ジッター抑制のため移動平均フィルタを適用)*
+
+#### 3. レップ検知ステートマシン
+誤検知（False Positive）を防ぐため、状態遷移マシンによってレップを管理しています。
+
+```mermaid
+stateDiagram-v2
+    [*] --> 待機 (WAITING)
+    待機 (WAITING) --> 下降 (ECCENTRIC): 速度 < -閾値
+    下降 (ECCENTRIC) --> 上昇 (CONCENTRIC): 速度 > +閾値
+    state 上昇 (CONCENTRIC) {
+        データ記録 --> ピーク速度判定
+        ピーク速度判定 --> 変位量チェック
+    }
+    上昇 (CONCENTRIC) --> 待機 (WAITING): 速度 < 終了閾値
+```
 
 ### 制約事項・注意点
 *   **カメラアングル**: **正面（Front View）のみ対応**しています。側面からの撮影では手幅が計測できないため使用できません。

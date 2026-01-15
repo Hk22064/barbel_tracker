@@ -9,7 +9,7 @@
 
 
 \title{卒業論文\\深層学習を用いた\\マーカーレス・バーベル挙上速度計測システムの構築と評価}
-\author{5422064 畠谷佳汰}
+\author{5422064 畠谷佳汰\\指導教員：中原泳青教授}
 \date{\today}
 
 \begin{document}
@@ -44,6 +44,9 @@ VBTでは、挙上速度と1RM（1回挙上可能な最大重量）の間に高�
     \item \textbf{Graph-based / Heatmapアプローチ}: MediaPipe BlazePose等に代表される手法 \cite{ref:blazepose, ref:mediapipe}。骨格構造の接続関係（トポロジー）や時間的な連続性を考慮した追跡を行う。特にMediaPipeは、前フレームの推定結果を次フレームの入力として利用するトラッキング機能を有しており、動作の滑らかさとリアルタイム性の両立に優れている。
     しかし、MediaPipeを「姿勢矯正」ではなく「バーベルの速度計測」に応用し、その微分値（速度）の精度を定量的に検証した研究は未だ少ない。本研究では、このMediaPipeの追跡機能がVBTに求められる高精度な速度データ取得に適しているかを実証する点に新規性がある。
 \end{enumerate}
+
+\subsection{先行研究}
+PSLeon24 \cite{ref:psleon24} は、物体検出と姿勢推定のハイブリッド構成を用いたリアルタイム姿勢フィードバックシステムを実装・公開している。同システムでは、YOLOで特定した人物領域に対してMediaPipeを適用し、\textbf{得られた骨格座標から関節角度（膝・股関節等）を算出することで、スクワットのしゃがみ深さやフォームの適正さを定量的に評価している}。本研究では、このアーキテクチャの有効性（背景ノイズへの耐性と計算効率）に着目し、同手法をVBT（Velocity Based Training）の領域へと拡張・応用することで、バーベル挙上速度の高精度な計測が可能なシステムの構築を試みた。
 
 \chapter{本論 (Proposed Method)}
 
@@ -89,10 +92,54 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
 \subsection{疲労度モニタリング機能}
 算出された絶対速度を用いて、トレーニング中の疲労管理を行う機能を実装した。
 \begin{itemize}
-    \item \textbf{相対的低下率の可視化}: そのセットにおける「最高速度（1レップ目など）」を基準（100\%）とし、現在の挙上速度がどれだけ低下したかをパーセンテージで表示する。
-    \item \textbf{インジケーター}: 速度維持（緑）$\to$軽度疲労（黄）$\to$限界（赤）と色を変化させ、直感的なフィードバックを提供する。
     \item \textbf{レップ自動検知}: 速度の極大値と変曲点を監視するステートマシンにより、挙上・下降のフェーズを自動判定し、レップ数をカウントする。
 \end{itemize}
+
+\section{提案システムの詳細設計}
+本節では、実装したシステムの内部ロジックについて詳述する。
+
+\subsection{画像処理パイプライン}
+本システムは、以下のハイブリッド構成により、高いロバスト性とリアルタイム性を両立している。
+\begin{enumerate}
+    \item \textbf{初期検出 (YOLOv11)}: まず画像全体からリフターのバウンディングボックス ($B_{box} = [x_1, y_1, x_2, y_2]$) を検出する。
+    \item \textbf{動的クロッピング (Dynamic Cropping)}: 検出された領域に対し、動作によるフレームアウトを防ぐためのマージン率 $\alpha$ (本実験では 0.3) を適用した領域 $B_{crop}$ を切り出す。
+    \begin{equation}
+        B_{crop} = [x_1 - w \cdot \alpha, \ y_1 - h \cdot \alpha, \ x_2 + w \cdot \alpha, \ y_2 + h \cdot \alpha]
+    \end{equation}
+    これにより、MediaPipeへの入力解像度が向上し、遠距離撮影時の認識精度が改善される。
+    \item \textbf{姿勢推定 (MediaPipe)}: 切り出された高解像度画像に対してMediaPipe Poseを適用し、33箇所のランドマーク座標 ($L_{local}$) を取得する。
+    \item \textbf{座標変換}: ローカル座標系で得られた結果を、元の画像のグローバル座標系 ($L_{global}$) に再マッピングし、以後の速度計算に用いる。
+\end{enumerate}
+
+\subsection{速度算出と平滑化}
+VBTにおいて最も重要な指標である「速度」は、以下の手順で算出される。
+
+\textbf{1. グリップ幅キャリブレーション:} \\
+左右の手首間距離 $d_{wrist}$ (pixel) と、既知の実測値 $W_{real}$ (0.81 m) を用いて、スケール係数 $S$ を決定する。
+\begin{equation}
+    S \ [m/pixel] = \frac{W_{real}}{d_{wrist}}
+\end{equation}
+
+\textbf{2. 瞬時速度の算出:} \\
+時刻 $t$ における手首の垂直座標 $y_t$ と前フレーム $y_{t-1}$ の差分より、瞬時速度 $v_t$ を求める。ここで $\Delta t$ はフレーム間隔 (約0.033秒) である。
+\begin{equation}
+    v_t = \frac{(y_{t-1} - y_t) \times S}{\Delta t}
+\end{equation}
+
+\textbf{3. 平滑化処理 (Smoothing):} \\
+生の速度データには微細なジッターが含まれるため、ウィンドウサイズ $N=5$ の移動平均フィルタを適用し、解析用速度 $\hat{v}_t$ を得る。
+\begin{equation}
+    \hat{v}_t = \frac{1}{N} \sum_{i=0}^{N-1} v_{t-i}
+\end{equation}
+
+\subsection{ステートマシンによる動作解析}
+誤検知を防ぐため、以下の3状態を持つステートマシンを実装した。
+\begin{enumerate}
+    \item \textbf{WAITING}: 速度が静止状態 ($-0.05 < v < 0.05$)。
+    \item \textbf{ECCENTRIC}: 速度が負の閾値 ($v < -0.05$) を下回った状態で、下降フェーズと判定する。
+    \item \textbf{CONCENTRIC}: 速度が正の閾値 ($v > 0.05$) を超えた状態で、挙上フェーズと判定する。この期間のピーク速度および平均速度を記録する。
+\end{enumerate}
+速度が再び0近傍に戻った時点で1レップの終了とみなし、移動距離が物理的に妥当 (例: 15cm以上) である場合のみカウントを確定させる。
 
 \chapter{考察・評価実験 (Discussion \& Evaluation)}
 
@@ -168,20 +215,20 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
 \begin{table}[H]
     \centering
     \caption{手法別 レップ検出結果の比較}
-    \begin{tabular}{|l|c|c|c|c|}
+    \begin{tabular}{|l|c|c|c|}
         \hline
-        \textbf{動画ID (Condition)} & \textbf{正解} & \textbf{Proposed} & \textbf{Comp A} & \textbf{判定} \\
-        & \textbf{Reps} & \textbf{(Hybrid)} & \textbf{(YOLO11x)} & \\
+        \textbf{動画ID (Condition)} & \textbf{正解} & \textbf{Proposed} & \textbf{Comp A} \\
+        & \textbf{Reps} & \textbf{(Hybrid)} & \textbf{(YOLO11x)} \\
         \hline
-        front\_9rep (Horizontal, Front) & 9 & \textbf{9 (100\%)} & 8 (89\%) & \textbf{Win} \\
+        front\_9rep (Horizontal, Front) & 9 & \textbf{9 (100\%)} & 8 (89\%)\\
         \hline
-        right\_9rep (Horizontal, Right) & 9 & \textbf{10 (Over)} & 10 (Over) & Draw \\
+        right\_9rep (Horizontal, Right) & 9 & \textbf{10 (Over)} & 10 (Over)\\
         \hline
-        front\_5rep (Vertical, Medium) & 5 & \textbf{5 (100\%)} & 5 (100\%) & Draw \\
+        front\_5rep (Vertical, Medium) & 5 & \textbf{5 (100\%)} & 5 (100\%)\\
         \hline
-        no20kg (Horizontal, Left) & 10 & \textbf{8 (80\%)} & 13 (Over) & Draw \\
+        left\_10rep (Horizontal, Left) & 10 & \textbf{8 (80\%)} & 13 (Over)\\
         \hline
-        front\_10rep (Vertical, Far) & 10 & \textbf{10 (100\%)} & 3 (30\%) & \textbf{Win} \\
+        front\_10rep (Vertical, Far) & 10 & \textbf{10 (100\%)} & 3 (30\%)\\
         \hline
     \end{tabular}
 \end{table}
@@ -189,7 +236,7 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
 \textbf{結果の分析:}
 \begin{enumerate}
     \item \textbf{正面・縦撮りでの優位性:} 予備実験やYOLOv11単体（比較手法A）では検出が困難であった \texttt{front\_10rep}（縦画面・被写体が遠い・高回数）において、提案手法が圧倒的な優位性（100\% vs 30\%）を示した。これは「Lock-Crop機構」による追跡の安定化と、最適化された平滑化パラメータ（Window=5）の効果である。
-    \item \textbf{サイドビューの課題:} 一方で、\texttt{right\_9rep}（右側）や \texttt{no20kg}（左側）においては、提案手法・比較手法ともに過検知や検出漏れが発生した。これは、プレートによる身体の隠れ（オクルージョン）により、手首位置の推定精度が低下したためと考えられる。
+    \item \textbf{サイドビューの課題:} 一方で、\texttt{right\_9rep}（右側）や \texttt{left\_10rep}（左側）においては、提案手法・比較手法ともに過検知や検出漏れが発生した。これは、プレートによる身体の隠れ（オクルージョン）により、手首位置の推定精度が低下したためと考えられる。
 \end{enumerate}
 
 以上の結果を踏まえ、次節の「速度推定精度の検証」においては、正確なレップ検出に成功した \texttt{front} 系および \texttt{vertical} 系の動画3本を対象として評価を行う。
@@ -221,7 +268,7 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
     \end{tabular}
 \end{table}
 
-システム全体の平均MAPEは \textbf{10.4\%} であり、一般的な市販VBTデバイスの許容誤差（約10\%前後）を満たす結果が得られた。また、全体平均の相関係数は \textbf{r=0.86} と高い値を示しており、本システムがリフターの挙上パフォーマンスを捉えていることを示唆している。
+システム全体の平均MAPEは \textbf{10.4\%} であった。この値は、先行研究 \cite{ref:balsalobre} において報告されている市販VBTアプリの精度（誤差約10\%前後）を参考値とすれば、実用上許容される範囲内にあると考えられる。また、全体平均の相関係数は \textbf{r=0.86} と高い値を示しており、本システムがリフターの挙上パフォーマンスの変動を十分に捉えていることを示唆している。
 
 以下に、各条件ごとの詳細な分析を述べる。
 
@@ -236,7 +283,7 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
 \end{figure}
 
 \subsubsection*{(2) front\_9rep (横撮り・高回数)}
-後半にかけて疲労により挙上速度が低下する（0.24m/s $\to$ 0.10m/s）条件であったが、低速度域においてもシステムは高い精度を維持した。特に 8〜9 レップ目の限界付近（スティッキングポイント）において誤差が 5\% 未満に抑えられている点は、VBTの主目的である「限界判定（Failure Detection）」において本システムが極めて有効であることを示している。
+後半にかけて疲労により挙上速度が低下する（0.24m/s $\to$ 0.10m/s）条件であったが、低速度域においてもシステムは高い精度を維持した。特に 8〜9 レップ目の限界付近（スティッキングポイント）において誤差が 5\% 未満に抑えられている点は、VBTの主目的である「限界判定（Failure Detection）」において本システムがきわめて有効であることを示唆している。
 
 \begin{figure}[H]
     \centering
@@ -274,9 +321,9 @@ VBTシステムにおいては「微分の安定性」すなわち「ノイズ�
 
 本研究では、MediaPipeを用いたマーカーレスVBTシステムを構築し、その実用性を評価した。
 予備実験において、MediaPipeはYOLOと比較して微細なジッターが少なく、微分を用いた速度算出に適していることを確認した。
-さらに、実環境を想定したアングル比較実験により、物体検出ベースの手法が苦手とする「縦撮り・見切れ」環境においても、ハイブリッド手法（Lock-Crop）を用いることで、MediaPipeの追跡能力を最大限に引き出し、安定した計測が可能であることが実証された。
+さらに、実環境を想定したアングル比較実験により、物体検出ベースの手法が苦手とする「縦撮り・見切れ」環境においても、ハイブリッド手法（Lock-Crop）を用いることで、MediaPipeの追跡能力を最大限に引き出し、安定した計測が可能であることが示された。
 
-以上の結果から、単眼カメラを用いた民主化されたVBTシステムを実現するための最適解は、\textbf{「MediaPipeによる高速な姿勢推定」} と \textbf{「手首間距離を利用したマーカーレス自動キャリブレーション」} の組み合わせであると結論付ける。今後の展望として、スクワットやデッドリフトなど他の種目への適用や、リアルタイムでの音声フィードバック機能の実装といった、トレーニング支援システムとしての機能拡張が挙げられる。
+以上の結果から、単眼カメラを用いた民主化されたVBTシステムを実現するための有力なアプローチの一つは、\textbf{「MediaPipeによる高速な姿勢推定」} と \textbf{「手首間距離を利用したマーカーレス自動キャリブレーション」} の組み合わせであると結論付ける。今後の展望として、スクワットやデッドリフトなど他の種目への適用や、リアルタイムでの音声フィードバック機能の実装に加えて、取得された骨格情報を活用した「フォーム評価」への拡張といった、より高度なトレーニング支援システムへの発展が期待される。
 
 \begin{thebibliography}{99}
     \bibitem{ref:blazepose} Bazarevsky, V., et al. (2020). "BlazePose: On-device Real-time Body Pose tracking." arXiv preprint arXiv:2006.10204.
