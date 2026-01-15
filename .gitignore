@@ -39,4 +39,8 @@ models/
 --- 出力結果 ---
 
 output/
-gemini.md
+
+--- プロジェクト管理・不要ファイル ---
+CONTINUITY.md
+thesis/
+verification_test/
