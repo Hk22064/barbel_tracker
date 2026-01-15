@@ -44,11 +44,11 @@ The system employs a **Hybrid Tracking Architecture** ensuring both robustness a
 #### 1. Image Processing Pipeline
 ```mermaid
 graph LR
-    Input[Video Input] --> YOLO[YOLOv11 Detection]
-    YOLO -->|BBox + Margin| Crop[Dynamic Cropping]
-    Crop --> MP[MediaPipe Pose]
-    MP -->|Local Landmarks| Transform[Coord Transformation]
-    Transform -->|Global Landmarks| Analyzer[VBT Analyzer]
+    Input["Video Input"] --> YOLO["YOLOv11 Detection"]
+    YOLO -->|"BBox + Margin"| Crop["Dynamic Cropping"]
+    Crop --> MP["MediaPipe Pose"]
+    MP -->|"Local Landmarks"| Transform["Coord Transformation"]
+    Transform -->|"Global Landmarks"| Analyzer["VBT Analyzer"]
 ```
 *   **YOLOv11** detects the athlete's bounding box, handling complex backgrounds.
 *   **Dynamic Cropping** extracts the region of interest (ROI) with a safety margin, maximizing image resolution for the pose estimator.
@@ -119,11 +119,11 @@ stateDiagram-v2
 #### 1. 画像処理パイプライン
 ```mermaid
 graph LR
-    Input[映像入力] --> YOLO[YOLOv11 物体検出]
-    YOLO -->|BBox + マージン| Crop[動的クロッピング]
-    Crop --> MP[MediaPipe 姿勢推定]
-    MP -->|ローカル座標| Transform[座標変換 (Global化)]
-    Transform -->|グローバル座標| Analyzer[VBT分析ロジック]
+    Input["映像入力"] --> YOLO["YOLOv11 物体検出"]
+    YOLO -->|"BBox + マージン"| Crop["動的クロッピング"]
+    Crop --> MP["MediaPipe 姿勢推定"]
+    MP -->|"ローカル座標"| Transform["座標変換 (Global化)"]
+    Transform -->|"グローバル座標"| Analyzer["VBT分析ロジック"]
 ```
 *   **YOLOv11**: 複雑な背景からリフターの領域（Bounding Box）を堅牢に検出します。
 *   **動的クロッピング**: 検出領域にマージンを持たせて切り出し、姿勢推定器への入力解像度を最大化します。
@@ -143,14 +143,14 @@ graph LR
 
 ```mermaid
 stateDiagram-v2
-    [*] --> 待機 (WAITING)
-    待機 (WAITING) --> 下降 (ECCENTRIC): 速度 < -閾値
-    下降 (ECCENTRIC) --> 上昇 (CONCENTRIC): 速度 > +閾値
-    state 上昇 (CONCENTRIC) {
+    [*] --> "待機 (WAITING)"
+    "待機 (WAITING)" --> "下降 (ECCENTRIC)": 速度 < -閾値
+    "下降 (ECCENTRIC)" --> "上昇 (CONCENTRIC)": 速度 > +閾値
+    state "上昇 (CONCENTRIC)" {
         データ記録 --> ピーク速度判定
         ピーク速度判定 --> 変位量チェック
     }
-    上昇 (CONCENTRIC) --> 待機 (WAITING): 速度 < 終了閾値
+    "上昇 (CONCENTRIC)" --> "待機 (WAITING)": 速度 < 終了閾値
 ```
 
 ### 制約事項・注意点
