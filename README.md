@@ -168,7 +168,6 @@ stateDiagram-v2
 
 *   `src/`: アプリケーションのソースコード（YOLO+MediaPipeの推定ロジック、GUI描画など）
 *   `tools/`: ユーティリティ（GUIランチャー、レビュー用分析ツール）
-*   `thesis/`: 卒業論文の原稿（LaTeX/Markdown）および実験データの図表
 *   `experiments/`: 精度検証に使用した実験スクリプトと結果データ
 *   `models/`: AIモデル（YOLOの重みファイル）
 
